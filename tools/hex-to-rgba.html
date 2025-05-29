@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="auto">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Hex & RGBA Converter - DevKit</title>
+  <link rel="stylesheet" href="../assets/pico.min.css" />
+  <link rel="stylesheet" href="../assets/custom.css" />
+  <style>
+    #colorPreview {
+      height: 3rem;
+      border-radius: 0.25rem;
+      border: 1px solid #ccc;
+      margin-top: 0.5rem;
+    }
+  </style>
+</head>
+<body>
+  <div id="header-placeholder"></div>
+
+  <main class="container">
+    <header class="tool-header">
+      <h1>Hex & RGBA Converter</h1>
+      <p>Convert between 6-digit Hex and 8-digit Hex with alpha transparency.</p>
+    </header>
+
+    <div class="grid">
+      <div>
+        <label for="hexInput">Hex Input</label>
+        <input type="text" id="hexInput" placeholder="Enter 6-digit hex (e.g., #FF0000)">
+
+        <label for="alphaSlider">Alpha Value: <strong id="alphaValue">255</strong></label>
+        <input type="range" id="alphaSlider" min="0" max="255" value="255" step="1">
+
+        <label>Color Preview</label>
+        <div id="colorPreview"></div>
+
+        <label for="result">Result</label>
+        <input type="text" id="result" placeholder="#FF0000FF">
+
+        <button onclick="copyResult()">Copy Result</button>
+      </div>
+    </div>
+  </main>
+
+  <div id="notification" role="alert" class="contrast">
+    <span id="notification-text">Copied to clipboard!</span>
+  </div>
+
+  <div id="footer-placeholder"></div>
+
+  <script>
+    const hexInput = document.getElementById('hexInput');
+    const alphaSlider = document.getElementById('alphaSlider');
+    const alphaValue = document.getElementById('alphaValue');
+    const result = document.getElementById('result');
+    const colorPreview = document.getElementById('colorPreview');
+
+    function updateFromHexInput() {
+      let hex = hexInput.value.replace('#', '');
+      if (hex.length === 3) {
+        hex = hex[0] + hex[0] + hex[1] + hex[1] + hex[2] + hex[2];
+      }
+      if (hex.length !== 6) return;
+
+      const alpha = parseInt(alphaSlider.value).toString(16).padStart(2, '0');
+      result.value = '#' + hex + alpha;
+      colorPreview.style.backgroundColor = `#${hex}${alpha}`;
+    }
+
+    function updateFromResult() {
+      let fullHex = result.value.replace('#', '');
+      if (fullHex.length !== 8) return;
+
+      const hex = fullHex.slice(0, 6);
+      const alpha = fullHex.slice(6);
+
+      hexInput.value = '#' + hex;
+      alphaSlider.value = parseInt(alpha, 16);
+      alphaValue.textContent = alphaSlider.value;
+      colorPreview.style.backgroundColor = `#${fullHex}`;
+    }
+
+    function copyResult() {
+      result.select();
+      document.execCommand('copy');
+      showNotification('Copied to clipboard!');
+    }
+
+    hexInput.addEventListener('input', updateFromHexInput);
+    alphaSlider.addEventListener('input', () => {
+      alphaValue.textContent = alphaSlider.value;
+      updateFromHexInput();
+    });
+    result.addEventListener('input', updateFromResult);
+
+    updateFromHexInput();
+  </script>
+  <script src="../assets/script.js"></script>
+</body>
+</html>

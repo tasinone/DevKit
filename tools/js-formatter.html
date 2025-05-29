@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="auto">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>JavaScript Formatter - DevKit</title>
+  <link rel="stylesheet" href="../assets/pico.min.css" />
+  <link rel="stylesheet" href="../assets/custom.css">
+  <style>
+    .inline-group {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+      align-items: center;
+    }
+    .inline-group button,
+    .inline-group select {
+      white-space: nowrap;
+      width: auto;
+    }
+  </style>
+</head>
+<body>
+  <div id="header-placeholder"></div>
+
+  <main class="container">
+    <header class="tool-header">
+      <h1>JavaScript Formatter</h1>
+      <p>Beautify or minify your JavaScript code with formatting options like indentation and brace style</p>
+    </header>
+
+    <textarea id="inputJs" rows="10" placeholder="Paste your JavaScript code here"></textarea>
+
+    <div class="inline-group">
+      <button onclick="prettifyJs()">Prettify</button>
+      <button onclick="minifyJs()">Minify</button>
+      <button onclick="copyResult()">Copy</button>
+
+      <select style="margin-top: 20px;" id="jsIndentOption">
+        <option value="tab">Tab</option>
+        <option value="1">1</option>
+        <option value="2" selected>2</option>
+        <option value="3">3</option>
+        <option value="4">4</option>
+      </select>
+
+      <select style="margin-top: 20px;" id="braceStyleOption">
+        <option value="collapse" selected>Collapse</option>
+        <option value="expand">Expand</option>
+        <option value="end-expand">End Expand</option>
+        <option value="none">None</option>
+      </select>
+    </div>
+  </main>
+
+  <div id="notification" role="alert" class="contrast">
+    <span id="notification-text">Copied to clipboard!</span>
+  </div>
+
+  <div id="footer-placeholder"></div>
+
+  <script src="../assets/script.js"></script>
+  <script>
+    function prettifyJs() {
+      const input = document.getElementById('inputJs');
+      const indentSize = document.getElementById('jsIndentOption').value;
+      const braceStyle = document.getElementById('braceStyleOption').value;
+
+      const beautified = js_beautify(input.value, {
+        indent_size: indentSize === 'tab' ? 1 : parseInt(indentSize),
+        indent_with_tabs: indentSize === 'tab',
+        brace_style: braceStyle
+      });
+
+      input.value = beautified;
+    }
+
+    function minifyJs() {
+      const input = document.getElementById('inputJs');
+      const minified = js_beautify(input.value, {
+        indent_size: 0,
+        preserve_newlines: false
+      });
+      input.value = minified.replace(/\n/g, '');
+    }
+
+    function copyResult() {
+      const input = document.getElementById('inputJs');
+      input.select();
+      document.execCommand('copy');
+      showNotification('Copied to clipboard!');
+    }
+  </script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/js-beautify/1.14.9/beautify.min.js"></script>
+</body>
+</html>

@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="auto">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>CSS Formatter (tool name) - DevKit</title>
+  <link rel="stylesheet" href="../assets/pico.min.css" />
+  <link rel="stylesheet" href="../assets/custom.css" />
+  <style>
+    <!-- custom css here if needed --> 
+  </style>
+</head>
+<body>
+  <div id="header-placeholder"></div>
+
+  <main class="container">
+    <header class="tool-header">
+      <h1>CSS Formatter (tool name here)</h1>
+      <p>Format and beautify your CSS code with proper indentation and spacing (tool description here)</p>
+    </header>
+      <!-- rest of the code here -->
+  </main>
+  
+  <!-- code for notification if needed -->
+  <div id="notification" role="alert" class="contrast">
+    <span id="notification-text">Copied to clipboard!</span>
+  </div>
+
+  <div id="footer-placeholder"></div>
+  <script>
+    <!-- custom js here if needed --> 
+  </script>
+  <script src="../assets/script.js"></script>
+</body>
+</html>

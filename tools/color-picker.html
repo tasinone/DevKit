@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="auto">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Color Picker - DevKit</title>
+  <link rel="stylesheet" href="../assets/pico.min.css" />
+  <link rel="stylesheet" href="../assets/custom.css" />
+  <style>
+    .color-sample {
+      width: 100%;
+      height: 100px;
+      border-radius: 0.5rem;
+      margin-top: 1rem;
+      border: 1px solid #ccc;
+    }
+    .field-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1rem;
+    }
+    @media (max-width: 600px) {
+      .field-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+<div id="header-placeholder"></div>
+<main class="container">
+  <header class="tool-header">
+    <h1>Color Picker</h1>
+    <p>Edit any field below to convert between color formats (HEX, RGB, RGBA, HSL, HSV, CMYK, HTML).</p>
+  </header>
+
+  <input type="color" id="colorInput" value="#7f2d58" style="width: 100%; height: 60px;">
+  <div class="color-sample" id="colorSample"></div>
+
+  <div class="field-grid">
+    <div>
+      <label for="hexInput">HEX</label>
+      <input type="text" id="hexInput" value="#7f2d58">
+    </div>
+    <div>
+      <label for="rgbInput">RGB</label>
+      <input type="text" id="rgbInput" value="127, 45, 88">
+    </div>
+    <div>
+      <label for="rgbaInput">RGBA</label>
+      <input type="text" id="rgbaInput" value="127, 45, 88, 1">
+    </div>
+    <div>
+      <label for="hslInput">HSL</label>
+      <input type="text" id="hslInput">
+    </div>
+    <div>
+      <label for="hsvInput">HSV</label>
+      <input type="text" id="hsvInput">
+    </div>
+    <div>
+      <label for="cmykInput">CMYK</label>
+      <input type="text" id="cmykInput">
+    </div>
+    <div>
+      <label for="htmlInput">HTML RGB</label>
+      <input type="text" id="htmlInput">
+    </div>
+    <div>
+      <label for="htmlAlphaInput">HTML RGBA</label>
+      <input type="text" id="htmlAlphaInput">
+    </div>
+  </div>
+</main>
+
+<div id="notification" role="alert" class="contrast">
+  <span id="notification-text">Copied to clipboard!</span>
+</div>
+<div id="footer-placeholder"></div>
+<script src="../assets/converters.js"></script>
+<script src="../assets/script.js"></script>
+<script>
+  function updateAllFromColor(color) {
+    const ctx = document.createElement('canvas').getContext('2d');
+    ctx.fillStyle = color;
+    const rgba = ctx.fillStyle.match(/\d+/g).map(Number);
+    const r = rgba[0], g = rgba[1], b = rgba[2], a = rgba[3] ?? 1;
+
+    document.getElementById('colorSample').style.backgroundColor = `rgba(${r}, ${g}, ${b}, ${a})`;
+    document.getElementById('hexInput').value = `#${((1 << 24) + (r << 16) + (g << 8) + b).toString(16).slice(1)}`;
+    document.getElementById('rgbInput').value = `${r}, ${g}, ${b}`;
+    document.getElementById('rgbaInput').value = `${r}, ${g}, ${b}, ${a}`;
+    document.getElementById('htmlInput').value = `${r} , ${g} , ${b}`;
+    document.getElementById('htmlAlphaInput').value = `${r} , ${g} , ${b}, ${a}`;
+
+    const [h, s, l] = rgbToHsl(r, g, b);
+    const [hh, ss, vv] = rgbToHsv(r, g, b);
+    const [c, m, y, k] = rgbToCmyk(r, g, b);
+
+    document.getElementById('hslInput').value = `${h}, ${s}%, ${l}%`;
+    document.getElementById('hsvInput').value = `${hh}, ${ss}%, ${vv}%`;
+    document.getElementById('cmykInput').value = `${c}%, ${m}%, ${y}%, ${k}%`;
+  }
+
+  function rgbToHsl(r, g, b) {
+    r /= 255; g /= 255; b /= 255;
+    const max = Math.max(r, g, b), min = Math.min(r, g, b);
+    let h, s, l = (max + min) / 2;
+    if (max === min) h = s = 0;
+    else {
+      const d = max - min;
+      s = l > 0.5 ? d / (2 - max - min) : d / (max + min);
+      switch (max) {
+        case r: h = (g - b) / d + (g < b ? 6 : 0); break;
+        case g: h = (b - r) / d + 2; break;
+        case b: h = (r - g) / d + 4; break;
+      }
+      h *= 60;
+    }
+    return [Math.round(h), Math.round(s * 100), Math.round(l * 100)];
+  }
+
+  function rgbToHsv(r, g, b) {
+    r /= 255; g /= 255; b /= 255;
+    const max = Math.max(r, g, b), min = Math.min(r, g, b);
+    const v = max;
+    const d = max - min;
+    const s = max === 0 ? 0 : d / max;
+    let h;
+    if (max === min) h = 0;
+    else {
+      switch (max) {
+        case r: h = (g - b) / d + (g < b ? 6 : 0); break;
+        case g: h = (b - r) / d + 2; break;
+        case b: h = (r - g) / d + 4; break;
+      }
+      h *= 60;
+    }
+    return [Math.round(h), Math.round(s * 100), Math.round(v * 100)];
+  }
+
+  function rgbToCmyk(r, g, b) {
+    const c = 1 - (r / 255);
+    const m = 1 - (g / 255);
+    const y = 1 - (b / 255);
+    const k = Math.min(c, m, y);
+    if (k === 1) return [0, 0, 0, 100];
+    return [
+      Math.round(((c - k) / (1 - k)) * 100),
+      Math.round(((m - k) / (1 - k)) * 100),
+      Math.round(((y - k) / (1 - k)) * 100),
+      Math.round(k * 100)
+    ];
+  }
+
+  document.getElementById('colorInput').addEventListener('input', e => {
+    updateAllFromColor(e.target.value);
+  });
+
+  document.querySelectorAll('input[type="text"]').forEach(input => {
+    input.addEventListener('change', () => {
+      const rgbaText = document.getElementById('rgbaInput').value.split(',');
+      const r = parseInt(rgbaText[0]);
+      const g = parseInt(rgbaText[1]);
+      const b = parseInt(rgbaText[2]);
+      const a = parseFloat(rgbaText[3] ?? 1);
+      updateAllFromColor(`rgba(${r}, ${g}, ${b}, ${a})`);
+    });
+  });
+
+  updateAllFromColor(document.getElementById('colorInput').value);
+</script>
+</body>
+</html>

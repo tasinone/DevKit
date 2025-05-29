@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="auto">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Entity Converter - DevKit</title>
+  <link rel="stylesheet" href="../assets/pico.min.css" />
+  <link rel="stylesheet" href="../assets/custom.css" />
+  <style>
+    textarea {
+      min-height: 250px;
+      resize: vertical;
+    }
+    @media (max-width: 768px) {
+      .grid {
+        flex-direction: column;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div id="header-placeholder"></div>
+
+  <main class="container">
+    <header class="tool-header">
+      <h1>Entity Converter</h1>
+      <p>Convert between decoded text and encoded HTML entities in real-time</p>
+    </header>
+
+    <section>
+      <div class="grid" style="display: flex; gap: 1rem;">
+        <div style="flex: 1;">
+          <label for="decodedInput"><strong>Decoded</strong></label>
+          <textarea id="decodedInput" placeholder="Enter decoded text here"></textarea>
+        </div>
+        <div style="flex: 1;">
+          <label for="encodedInput"><strong>Encoded</strong></label>
+          <textarea id="encodedInput" placeholder="Enter encoded text here"></textarea>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <div id="footer-placeholder"></div>
+
+  <script>
+    function encodeHTML(str) {
+      return str.replace(/[\u00A0-\u9999<>\&]/gim, function(i) {
+        return '&#x' + i.charCodeAt(0).toString(16) + ';';
+      });
+    }
+
+    function decodeHTML(str) {
+      const txt = document.createElement('textarea');
+      txt.innerHTML = str;
+      return txt.value;
+    }
+
+    const decoded = document.getElementById('decodedInput');
+    const encoded = document.getElementById('encodedInput');
+
+    decoded.addEventListener('input', () => {
+      encoded.value = encodeHTML(decoded.value);
+    });
+
+    encoded.addEventListener('input', () => {
+      decoded.value = decodeHTML(encoded.value);
+    });
+  </script>
+  <script src="../assets/script.js"></script>
+</body>
+</html>
+
+    <div id="footer-placeholder"></div>
+    <script src="../common.js"></script>
+</body>
+</html>

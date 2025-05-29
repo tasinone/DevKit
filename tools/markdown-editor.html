@@ -1,0 +1,829 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="auto">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MDCraft - DevKit</title>
+    
+    <!-- External Dependencies -->
+    <link rel="stylesheet" href="../assets/pico.min.css" />
+    <link rel="stylesheet" href="../assets/custom.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/codemirror.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/theme/default.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/github-markdown-css/5.2.0/github-markdown-light.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prettify/r298/prettify.min.css">
+    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/codemirror.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/mode/markdown/markdown.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/marked/9.1.2/marked.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prettify/r298/prettify.min.js"></script>
+    
+    <style>
+        *{margin:0;padding:0;box-sizing:border-box}body{font-family:-apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif;background:#f8f9fa;height:100vh;overflow:hidden}.header{background:#fff;border-bottom:1px solid #e1e4e8;padding:10px 15px;display:flex;align-items:center;gap:10px;flex-wrap:wrap;position:relative;z-index:1000}.toolbar-group{display:flex;gap:5px;align-items:center;padding:0 10px;border-right:1px solid #e1e4e8}.toolbar-group:last-child{border-right:none}.toolbar-btn{background:none;border:1px solid transparent;padding:6px 8px;border-radius:4px;cursor:pointer;color:#586069;font-size:14px;transition:all 0.2s;display:flex;align-items:center;gap:4px}.toolbar-btn:hover{background:#f1f3f4;border-color:#d1d9e0}.toolbar-btn.active{background:#0366d6;color:white}.toolbar-select{border:1px solid #d1d9e0;border-radius:4px;padding:4px 8px;background:white;color:#24292f;font-size:14px;cursor:pointer}.main-container{display:flex;height:calc(100vh - 60px)}.editor-container{flex:1;display:flex;flex-direction:column;background:white;border-right:1px solid #e1e4e8;transition:all 0.3s ease}.editor-container.full-width{flex:1}.preview-container{flex:1;display:flex;flex-direction:column;background:white;transition:all 0.3s ease}.preview-container.hidden{display:none}.CodeMirror{height:100% !important;font-family:'Monaco', 'Menlo', 'Ubuntu Mono', monospace;font-size:14px;line-height:1.5}.preview-content{flex:1;overflow-y:auto;padding:20px}.markdown-body{max-width:none}.search-container{position:absolute;top:60px;right:20px;background:white;border:1px solid #d1d9e0;border-radius:6px;padding:10px;box-shadow:0 4px 12px rgba(0,0,0,0.1);display:none;z-index:1000}.search-input{border:1px solid #d1d9e0;border-radius:4px;padding:6px 8px;margin-right:5px;font-size:14px}.modal{position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.5);display:none;align-items:center;justify-content:center;z-index:2000}.modal-content{background:white;border-radius:8px;padding:20px;max-width:500px;width:90%}.modal input{width:100%;padding:8px;border:1px solid #d1d9e0;border-radius:4px;margin:10px 0;font-size:14px}.modal-buttons{display:flex;gap:10px;justify-content:flex-end;margin-top:15px}.btn{padding:8px 16px;border:1px solid #d1d9e0;border-radius:4px;cursor:pointer;font-size:14px}.btn-primary{background:#0366d6;color:white;border-color:#0366d6}.fullscreen{position:fixed !important;top:0 !important;left:0 !important;right:0 !important;bottom:0 !important;z-index:9999 !important;background:white !important}.fullscreen .main-container{height:calc(100vh - 60px)!important}
+    </style>
+</head>
+<body>
+    <div id="header-placeholder"></div>
+    <div class="header">
+        <!-- Logo/Brand -->
+        <div class="toolbar-group" style="border-right: 2px solid #0366d6; padding-right: 15px;">
+            <span style="font-weight: bold; color: #0366d6; font-size: 18px;">MDCraft</span>
+        </div>
+
+        <!-- File Operations -->
+        <div class="toolbar-group">
+            <button class="toolbar-btn" onclick="downloadFile('md')" title="Download as Markdown">
+                <i class="fas fa-download"></i> .md
+            </button>
+            <button class="toolbar-btn" onclick="downloadFile('html')" title="Download as HTML">
+                <i class="fas fa-download"></i> .html
+            </button>
+            <button class="toolbar-btn" onclick="downloadFile('txt')" title="Download as Text">
+                <i class="fas fa-download"></i> .txt
+            </button>
+        </div>
+        
+        <!-- Edit Operations -->
+        <div class="toolbar-group">
+            <button class="toolbar-btn" onclick="editor.undo()" title="Undo">
+                <i class="fas fa-undo"></i>
+            </button>
+            <button class="toolbar-btn" onclick="editor.redo()" title="Redo">
+                <i class="fas fa-redo"></i>
+            </button>
+        </div>
+        
+        <!-- Text Formatting -->
+        <div class="toolbar-group">
+            <button class="toolbar-btn" onclick="toggleFormat('**', '**')" title="Bold">
+                <i class="fas fa-bold"></i>
+            </button>
+            <button class="toolbar-btn" onclick="toggleFormat('*', '*')" title="Italic">
+                <i class="fas fa-italic"></i>
+            </button>
+            <button class="toolbar-btn" onclick="toggleFormat('~~', '~~')" title="Strikethrough">
+                <i class="fas fa-strikethrough"></i>
+            </button>
+            <button class="toolbar-btn" onclick="toggleFormat('> ', '')" title="Blockquote">
+                <i class="fas fa-quote-right"></i>
+            </button>
+            <button class="toolbar-btn" onclick="capitalizeFirst()" title="Capitalize First Letter">
+                <i class="fas fa-font"></i> Aa
+            </button>
+            <button class="toolbar-btn" onclick="transformText('upper')" title="Uppercase">
+                <i class="fas fa-font"></i> AA
+            </button>
+            <button class="toolbar-btn" onclick="transformText('lower')" title="Lowercase">
+                <i class="fas fa-font"></i> aa
+            </button>
+        </div>
+        
+        <!-- Headers -->
+        <div class="toolbar-group">
+            <select class="toolbar-select" onchange="insertHeader(this.value)" title="Headers">
+                <option value="">Header</option>
+                <option value="# ">H1</option>
+                <option value="## ">H2</option>
+                <option value="### ">H3</option>
+                <option value="#### ">H4</option>
+                <option value="##### ">H5</option>
+                <option value="###### ">H6</option>
+            </select>
+        </div>
+        
+        <!-- Lists -->
+        <div class="toolbar-group">
+            <button class="toolbar-btn" onclick="insertList('unordered')" title="Unordered List">
+                <i class="fas fa-list-ul"></i>
+            </button>
+            <button class="toolbar-btn" onclick="insertList('ordered')" title="Ordered List">
+                <i class="fas fa-list-ol"></i>
+            </button>
+            <button class="toolbar-btn" onclick="insertText('\\n---\\n')" title="Horizontal Rule">
+                <i class="fas fa-minus"></i>
+            </button>
+        </div>
+        
+        <!-- Links & Media -->
+        <div class="toolbar-group">
+            <button class="toolbar-btn" onclick="showLinkModal()" title="Link">
+                <i class="fas fa-link"></i>
+            </button>
+            <button class="toolbar-btn" onclick="showRefLinkModal()" title="Reference Link">
+                <i class="fa-solid fa-anchor"></i>
+            </button>
+            <button class="toolbar-btn" onclick="showImageModal()" title="Image">
+                <i class="fas fa-image"></i>
+            </button>
+        </div>
+        
+        <!-- Code -->
+        <div class="toolbar-group">
+            <button class="toolbar-btn" onclick="toggleFormat('`', '`')" title="Inline Code">
+                <i class="fa-solid fa-code"></i>
+            </button>
+            <button class="toolbar-btn" onclick="insertCodeBlock()" title="Code Block">
+                <i class="fa-regular fa-file-code"></i> Block
+            </button>
+            <button class="toolbar-btn" onclick="insertPreformatted()" title="Preformatted Text">
+                <i class="fas fa-indent"></i>
+            </button>
+        </div>
+        
+        <!-- Special -->
+        <div class="toolbar-group">
+            <button class="toolbar-btn" onclick="showTableModal()" title="Table">
+                <i class="fas fa-table"></i>
+            </button>
+            <button class="toolbar-btn" onclick="insertDateTime()" title="Date & Time">
+                <i class="fas fa-calendar"></i>
+            </button>
+            <button class="toolbar-btn" onclick="showEmojiModal()" title="Emoji">
+                <i class="fas fa-smile"></i>
+            </button>
+            <button class="toolbar-btn" onclick="showHtmlEntitiesModal()" title="HTML Entities">
+                <i class="fa-regular fa-copyright"></i>
+            </button>
+            <button class="toolbar-btn" onclick='insertText("\n<div style=\"page-break-before: always;\"></div>\n")' title="Page Break (Work on PDF)">
+                <i class="fas fa-file-pdf"></i>
+            </button>
+            <button class="toolbar-btn" onclick='insertText("\n[========]\n")' title="Page Break (Doesn't work on PDF)">
+                <i class="fa-regular fa-newspaper"></i>
+            </button>
+        </div>
+        
+        <!-- View Options -->
+        <div class="toolbar-group">
+            <button class="toolbar-btn" id="watchBtn" onclick="toggleWatch()" title="Toggle Preview">
+                <i class="fas fa-eye"></i> Watch
+            </button>
+            <button class="toolbar-btn" onclick="toggleFullscreen()" title="Fullscreen (ESC to exit)">
+                <i class="fas fa-expand"></i>
+            </button>
+            <button class="toolbar-btn" onclick="clearEditor()" title="Clear">
+                <i class="fas fa-trash"></i>
+            </button>
+            <button class="toolbar-btn" onclick="toggleSearch()" title="Search">
+                <i class="fas fa-search"></i>
+            </button>
+        </div>
+    </div>
+    
+    <div class="main-container" id="mainContainer">
+        <div class="editor-container" id="editorContainer">
+            <textarea id="editor" placeholder="Start typing your markdown here..."></textarea>
+        </div>
+        
+        <div class="preview-container" id="previewContainer">
+            <div class="preview-content">
+                <div class="markdown-body" id="preview">
+                    <h1>Welcome to Advanced Markdown Editor</h1>
+                    <p>Start typing in the editor to see your markdown rendered here in real-time!</p>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Search Container -->
+    <div class="search-container" id="searchContainer">
+        <input type="text" class="search-input" id="searchInput" placeholder="Search...">
+        <button class="btn btn-primary" onclick="searchText()">Find</button>
+        <button class="btn" onclick="toggleSearch()">Close</button>
+    </div>
+    
+    <!-- Modals -->
+    <div class="modal" id="linkModal">
+        <div class="modal-content">
+            <h3>Insert Link</h3>
+            <input type="text" id="linkText" placeholder="Link text">
+            <input type="text" id="linkUrl" placeholder="URL">
+            <div class="modal-buttons">
+                <button class="btn" onclick="closeLinkModal()">Cancel</button>
+                <button class="btn btn-primary" onclick="insertLink()">Insert</button>
+            </div>
+        </div>
+    </div>
+    
+    <div class="modal" id="refLinkModal">
+        <div class="modal-content">
+            <h3>Insert Reference Link</h3>
+            <input type="text" id="refLinkText" placeholder="Link text">
+            <input type="text" id="refLinkRef" placeholder="Reference ID">
+            <input type="text" id="refLinkUrl" placeholder="URL">
+            <div class="modal-buttons">
+                <button class="btn" onclick="closeRefLinkModal()">Cancel</button>
+                <button class="btn btn-primary" onclick="insertRefLink()">Insert</button>
+            </div>
+        </div>
+    </div>
+    
+    <div class="modal" id="imageModal">
+        <div class="modal-content">
+            <h3>Insert Image</h3>
+            <input type="text" id="imageAlt" placeholder="Alt text">
+            <input type="text" id="imageUrl" placeholder="Image URL">
+            <div class="modal-buttons">
+                <button class="btn" onclick="closeImageModal()">Cancel</button>
+                <button class="btn btn-primary" onclick="insertImage()">Insert</button>
+            </div>
+        </div>
+    </div>
+    
+    <div class="modal" id="tableModal">
+        <div class="modal-content">
+            <h3>Insert Table</h3>
+            <input type="number" id="tableRows" placeholder="Rows" value="3" min="1">
+            <input type="number" id="tableCols" placeholder="Columns" value="3" min="1">
+            <div class="modal-buttons">
+                <button class="btn" onclick="closeTableModal()">Cancel</button>
+                <button class="btn btn-primary" onclick="insertTable()">Insert</button>
+            </div>
+        </div>
+    </div>
+    
+    <div class="modal" id="emojiModal">
+        <div class="modal-content">
+            <h3>Insert Emoji</h3>
+            <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(40px, 1fr)); gap: 5px; max-height: 200px; overflow-y: auto; margin: 10px 0;">
+                <span onclick="insertEmoji('😀')" style="cursor: pointer; padding: 5px; text-align: center; border-radius: 4px;" onmouseover="this.style.background='#f1f3f4'" onmouseout="this.style.background='none'">😀</span>
+                <span onclick="insertEmoji('😃')" style="cursor: pointer; padding: 5px; text-align: center; border-radius: 4px;" onmouseover="this.style.background='#f1f3f4'" onmouseout="this.style.background='none'">😃</span>
+                <span onclick="insertEmoji('😄')" style="cursor: pointer; padding: 5px; text-align: center; border-radius: 4px;" onmouseover="this.style.background='#f1f3f4'" onmouseout="this.style.background='none'">😄</span>
+                <span onclick="insertEmoji('😁')" style="cursor: pointer; padding: 5px; text-align: center; border-radius: 4px;" onmouseover="this.style.background='#f1f3f4'" onmouseout="this.style.background='none'">😁</span>
+                <span onclick="insertEmoji('😅')" style="cursor: pointer; padding: 5px; text-align: center; border-radius: 4px;" onmouseover="this.style.background='#f1f3f4'" onmouseout="this.style.background='none'">😅</span>
+                <span onclick="insertEmoji('😂')" style="cursor: pointer; padding: 5px; text-align: center; border-radius: 4px;" onmouseover="this.style.background='#f1f3f4'" onmouseout="this.style.background='none'">😂</span>
+                <span onclick="insertEmoji('🤣')" style="cursor: pointer; padding: 5px; text-align: center; border-radius: 4px;" onmouseover="this.style.background='#f1f3f4'" onmouseout="this.style.background='none'">🤣</span>
+                <span onclick="insertEmoji('😊')" style="cursor: pointer; padding: 5px; text-align: center; border-radius: 4px;" onmouseover="this.style.background='#f1f3f4'" onmouseout="this.style.background='none'">😊</span>
+                <span onclick="insertEmoji('😇')" style="cursor: pointer; padding: 5px; text-align: center; border-radius: 4px;" onmouseover="this.style.background='#f1f3f4'" onmouseout="this.style.background='none'">😇</span>
+                <span onclick="insertEmoji('🙂')" style="cursor: pointer; padding: 5px; text-align: center; border-radius: 4px;" onmouseover="this.style.background='#f1f3f4'" onmouseout="this.style.background='none'">🙂</span>
+                <span onclick="insertEmoji('🙃')" style="cursor: pointer; padding: 5px; text-align: center; border-radius: 4px;" onmouseover="this.style.background='#f1f3f4'" onmouseout="this.style.background='none'">🙃</span>
+                <span onclick="insertEmoji('😉')" style="cursor: pointer; padding: 5px; text-align: center; border-radius: 4px;" onmouseover="this.style.background='#f1f3f4'" onmouseout="this.style.background='none'">😉</span>
+                <span onclick="insertEmoji('😌')" style="cursor: pointer; padding: 5px; text-align: center; border-radius: 4px;" onmouseover="this.style.background='#f1f3f4'" onmouseout="this.style.background='none'">😌</span>
+                <span onclick="insertEmoji('😍')" style="cursor: pointer; padding: 5px; text-align: center; border-radius: 4px;" onmouseover="this.style.background='#f1f3f4'" onmouseout="this.style.background='none'">😍</span>
+                <span onclick="insertEmoji('🥰')" style="cursor: pointer; padding: 5px; text-align: center; border-radius: 4px;" onmouseover="this.style.background='#f1f3f4'" onmouseout="this.style.background='none'">🥰</span>
+                <span onclick="insertEmoji('😘')" style="cursor: pointer; padding: 5px; text-align: center; border-radius: 4px;" onmouseover="this.style.background='#f1f3f4'" onmouseout="this.style.background='none'">😘</span>
+                <span onclick="insertEmoji('👍')" style="cursor: pointer; padding: 5px; text-align: center; border-radius: 4px;" onmouseover="this.style.background='#f1f3f4'" onmouseout="this.style.background='none'">👍</span>
+                <span onclick="insertEmoji('👎')" style="cursor: pointer; padding: 5px; text-align: center; border-radius: 4px;" onmouseover="this.style.background='#f1f3f4'" onmouseout="this.style.background='none'">👎</span>
+                <span onclick="insertEmoji('👉')" style="cursor: pointer; padding: 5px; text-align: center; border-radius: 4px;" onmouseover="this.style.background='#f1f3f4'" onmouseout="this.style.background='none'">👉</span>
+                <span onclick="insertEmoji('👈')" style="cursor: pointer; padding: 5px; text-align: center; border-radius: 4px;" onmouseover="this.style.background='#f1f3f4'" onmouseout="this.style.background='none'">👈</span>
+                <span onclick="insertEmoji('👆')" style="cursor: pointer; padding: 5px; text-align: center; border-radius: 4px;" onmouseover="this.style.background='#f1f3f4'" onmouseout="this.style.background='none'">👆</span>
+                <span onclick="insertEmoji('👇')" style="cursor: pointer; padding: 5px; text-align: center; border-radius: 4px;" onmouseover="this.style.background='#f1f3f4'" onmouseout="this.style.background='none'">👇</span>
+                <span onclick="insertEmoji('👌')" style="cursor: pointer; padding: 5px; text-align: center; border-radius: 4px;" onmouseover="this.style.background='#f1f3f4'" onmouseout="this.style.background='none'">👌</span>
+                <span onclick="insertEmoji('✌️')" style="cursor: pointer; padding: 5px; text-align: center; border-radius: 4px;" onmouseover="this.style.background='#f1f3f4'" onmouseout="this.style.background='none'">✌️</span>
+                <span onclick="insertEmoji('🤞')" style="cursor: pointer; padding: 5px; text-align: center; border-radius: 4px;" onmouseover="this.style.background='#f1f3f4'" onmouseout="this.style.background='none'">🤞</span>
+                <span onclick="insertEmoji('🤟')" style="cursor: pointer; padding: 5px; text-align: center; border-radius: 4px;" onmouseover="this.style.background='#f1f3f4'" onmouseout="this.style.background='none'">🤟</span>
+                <span onclick="insertEmoji('🤘')" style="cursor: pointer; padding: 5px; text-align: center; border-radius: 4px;" onmouseover="this.style.background='#f1f3f4'" onmouseout="this.style.background='none'">🤘</span>
+                <span onclick="insertEmoji('👏')" style="cursor: pointer; padding: 5px; text-align: center; border-radius: 4px;" onmouseover="this.style.background='#f1f3f4'" onmouseout="this.style.background='none'">👏</span>
+                <span onclick="insertEmoji('🙌')" style="cursor: pointer; padding: 5px; text-align: center; border-radius: 4px;" onmouseover="this.style.background='#f1f3f4'" onmouseout="this.style.background='none'">🙌</span>
+                <span onclick="insertEmoji('🎉')" style="cursor: pointer; padding: 5px; text-align: center; border-radius: 4px;" onmouseover="this.style.background='#f1f3f4'" onmouseout="this.style.background='none'">🎉</span>
+                <span onclick="insertEmoji('🎊')" style="cursor: pointer; padding: 5px; text-align: center; border-radius: 4px;" onmouseover="this.style.background='#f1f3f4'" onmouseout="this.style.background='none'">🎊</span>
+                <span onclick="insertEmoji('💯')" style="cursor: pointer; padding: 5px; text-align: center; border-radius: 4px;" onmouseover="this.style.background='#f1f3f4'" onmouseout="this.style.background='none'">💯</span>
+                <span onclick="insertEmoji('❤️')" style="cursor: pointer; padding: 5px; text-align: center; border-radius: 4px;" onmouseover="this.style.background='#f1f3f4'" onmouseout="this.style.background='none'">❤️</span>
+                <span onclick="insertEmoji('💜')" style="cursor: pointer; padding: 5px; text-align: center; border-radius: 4px;" onmouseover="this.style.background='#f1f3f4'" onmouseout="this.style.background='none'">💜</span>
+                <span onclick="insertEmoji('💙')" style="cursor: pointer; padding: 5px; text-align: center; border-radius: 4px;" onmouseover="this.style.background='#f1f3f4'" onmouseout="this.style.background='none'">💙</span>
+                <span onclick="insertEmoji('💚')" style="cursor: pointer; padding: 5px; text-align: center; border-radius: 4px;" onmouseover="this.style.background='#f1f3f4'" onmouseout="this.style.background='none'">💚</span>
+                <span onclick="insertEmoji('💛')" style="cursor: pointer; padding: 5px; text-align: center; border-radius: 4px;" onmouseover="this.style.background='#f1f3f4'" onmouseout="this.style.background='none'">💛</span>
+                <span onclick="insertEmoji('🧡')" style="cursor: pointer; padding: 5px; text-align: center; border-radius: 4px;" onmouseover="this.style.background='#f1f3f4'" onmouseout="this.style.background='none'">🧡</span>
+                <span onclick="insertEmoji('🖤')" style="cursor: pointer; padding: 5px; text-align: center; border-radius: 4px;" onmouseover="this.style.background='#f1f3f4'" onmouseout="this.style.background='none'">🖤</span>
+                <span onclick="insertEmoji('🤍')" style="cursor: pointer; padding: 5px; text-align: center; border-radius: 4px;" onmouseover="this.style.background='#f1f3f4'" onmouseout="this.style.background='none'">🤍</span>
+                <span onclick="insertEmoji('✅')" style="cursor: pointer; padding: 5px; text-align: center; border-radius: 4px;" onmouseover="this.style.background='#f1f3f4'" onmouseout="this.style.background='none'">✅</span>
+                <span onclick="insertEmoji('❎')" style="cursor: pointer; padding: 5px; text-align: center; border-radius: 4px;" onmouseover="this.style.background='#f1f3f4'" onmouseout="this.style.background='none'">❎</span>
+                <span onclick="insertEmoji('❌')" style="cursor: pointer; padding: 5px; text-align: center; border-radius: 4px;" onmouseover="this.style.background='#f1f3f4'" onmouseout="this.style.background='none'">❌</span>
+                <span onclick="insertEmoji('🚫')" style="cursor: pointer; padding: 5px; text-align: center; border-radius: 4px;" onmouseover="this.style.background='#f1f3f4'" onmouseout="this.style.background='none'">🚫</span>
+                <span onclick="insertEmoji('💯')" style="cursor: pointer; padding: 5px; text-align: center; border-radius: 4px;" onmouseover="this.style.background='#f1f3f4'" onmouseout="this.style.background='none'">💯</span>
+            </div>
+            <div class="modal-buttons">
+                <button class="btn" onclick="closeEmojiModal()">Close</button>
+            </div>
+        </div>
+    </div>
+    
+    <div class="modal" id="htmlEntitiesModal">
+        <div class="modal-content">
+            <h3>Insert HTML Entity</h3>
+            <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(80px, 1fr)); gap: 5px; max-height: 200px; overflow-y: auto; margin: 10px 0;">
+                <button class="btn" onclick="insertHtmlEntity('&amp;')">&amp;</button>
+                <button class="btn" onclick="insertHtmlEntity('&lt;')">&lt;</button>
+                <button class="btn" onclick="insertHtmlEntity('&gt;')">&gt;</button>
+                <button class="btn" onclick="insertHtmlEntity('&quot;')">&quot;</button>
+                <button class="btn" onclick="insertHtmlEntity('&apos;')">&apos;</button>
+                <button class="btn" onclick="insertHtmlEntity('&rarr;')">&nbsp;</button>
+                <button class="btn" onclick="insertHtmlEntity('&copy;')">&copy;</button>
+                <button class="btn" onclick="insertHtmlEntity('&reg;')">&reg;</button>
+                <button class="btn" onclick="insertHtmlEntity('&trade;')">&trade;</button>
+                <button class="btn" onclick="insertHtmlEntity('&euro;')">&euro;</button>
+                <button class="btn" onclick="insertHtmlEntity('&pound;')">&pound;</button>
+                <button class="btn" onclick="insertHtmlEntity('&yen;')">&yen;</button>
+                <button class="btn" onclick="insertHtmlEntity('&sect;')">&sect;</button>
+                <button class="btn" onclick="insertHtmlEntity('&para;')">&para;</button>
+                <button class="btn" onclick="insertHtmlEntity('&dagger;')">&dagger;</button>
+                <button class="btn" onclick="insertHtmlEntity('&Dagger;')">&Dagger;</button>
+            </div>
+            <div class="modal-buttons">
+                <button class="btn" onclick="closeHtmlEntitiesModal()">Close</button>
+            </div>
+        </div>
+    </div>
+    <div id="footer-placeholder"></div>
+    <script src="../assets/script.js"></script>
+    <script>
+        let editor;
+        let isWatching = true;
+        let isFullscreen = false;
+        
+        // Initialize CodeMirror
+        window.addEventListener('DOMContentLoaded', function() {
+            editor = CodeMirror.fromTextArea(document.getElementById('editor'), {
+                mode: 'markdown',
+                theme: 'default',
+                lineNumbers: true,
+                lineWrapping: true,
+                autofocus: true,
+                extraKeys: {
+                    "Ctrl-S": function(cm) {
+                        downloadFile('md');
+                        return false;
+                    },
+                    "Ctrl-F": function(cm) {
+                        toggleSearch();
+                        return false;
+                    },
+                    "F11": function(cm) {
+                        toggleFullscreen();
+                        return false;
+                    },
+                    "Esc": function(cm) {
+                        if (isFullscreen) {
+                            toggleFullscreen();
+                        }
+                        return false;
+                    }
+                }
+            });
+            
+            // Update preview on change
+            editor.on('change', function() {
+                if (isWatching) {
+                    updatePreview();
+                }
+            });
+            
+            // Initial preview update
+            updatePreview();
+        });
+        
+        // Update preview
+        function updatePreview() {
+            const content = editor.getValue();
+            const html = marked.parse(content);
+            document.getElementById('preview').innerHTML = html;
+            
+            // Apply syntax highlighting to code blocks
+            PR.prettyPrint();
+        }
+        
+        // Toggle format (bold, italic, etc.)
+        function toggleFormat(prefix, suffix) {
+            const selection = editor.getSelection();
+            const cursor = editor.getCursor();
+            
+            if (selection) {
+                const wrapped = prefix + selection + suffix;
+                editor.replaceSelection(wrapped);
+            } else {
+                const wrapped = prefix + suffix;
+                editor.replaceSelection(wrapped);
+                editor.setCursor(cursor.line, cursor.ch + prefix.length);
+            }
+            
+            editor.focus();
+        }
+        
+        // Insert text at cursor
+        function insertText(text) {
+            editor.replaceSelection(text.replace(/\\n/g, '\n'));
+            editor.focus();
+        }
+        
+        // Insert header
+        function insertHeader(headerPrefix) {
+            if (!headerPrefix) return;
+            
+            const cursor = editor.getCursor();
+            const line = editor.getLine(cursor.line);
+            
+            // If line is empty or starts with #, replace it
+            if (!line.trim() || line.trim().startsWith('#')) {
+                editor.setLine(cursor.line, headerPrefix + (line.replace(/^#+\s*/, '') || 'Header'));
+            } else {
+                editor.replaceSelection('\n' + headerPrefix + 'Header');
+            }
+            
+            // Reset select
+            document.querySelector('.toolbar-select').selectedIndex = 0;
+            editor.focus();
+        }
+        
+        // Insert list
+        function insertList(type) {
+            const cursor = editor.getCursor();
+            const selection = editor.getSelection();
+            
+            if (selection) {
+                const lines = selection.split('\n');
+                const listItems = lines.map((line, index) => {
+                    const prefix = type === 'ordered' ? `${index + 1}. ` : '- ';
+                    return prefix + line.trim();
+                }).join('\n');
+                editor.replaceSelection(listItems);
+            } else {
+                const prefix = type === 'ordered' ? '1. ' : '- ';
+                editor.replaceSelection('\n' + prefix + 'List item');
+            }
+            
+            editor.focus();
+        }
+        
+        // Text transformations
+        function transformText(type) {
+            const selection = editor.getSelection();
+            if (!selection) return;
+            
+            let transformed;
+            switch (type) {
+                case 'upper':
+                    transformed = selection.toUpperCase();
+                    break;
+                case 'lower':
+                    transformed = selection.toLowerCase();
+                    break;
+            }
+            
+            editor.replaceSelection(transformed);
+            editor.focus();
+        }
+        
+        function capitalizeFirst() {
+            const selection = editor.getSelection();
+            if (!selection) return;
+            
+            const words = selection.split(' ').map(word => 
+                word.charAt(0).toUpperCase() + word.slice(1).toLowerCase()
+            );
+            
+            editor.replaceSelection(words.join(' '));
+            editor.focus();
+        }
+        
+        // Insert code block
+        function insertCodeBlock() {
+            const selection = editor.getSelection();
+            const codeBlock = selection ? 
+                `\`\`\`\n${selection}\n\`\`\`` : 
+                '\`\`\`javascript\n// Your code here\n\`\`\`';
+            
+            editor.replaceSelection('\n' + codeBlock + '\n');
+            editor.focus();
+        }
+        
+        // Insert preformatted text
+        function insertPreformatted() {
+            const selection = editor.getSelection();
+            if (selection) {
+                const lines = selection.split('\n');
+                const preformatted = lines.map(line => '    ' + line).join('\n');
+                editor.replaceSelection(preformatted);
+            } else {
+                editor.replaceSelection('\n    Preformatted text\n');
+            }
+            editor.focus();
+        }
+        
+        // Insert date/time
+        function insertDateTime() {
+            const now = new Date();
+            const dateTime = now.toLocaleString();
+            editor.replaceSelection(dateTime);
+            editor.focus();
+        }
+        
+        // Toggle watch mode
+        function toggleWatch() {
+            isWatching = !isWatching;
+            const watchBtn = document.getElementById('watchBtn');
+            const previewContainer = document.getElementById('previewContainer');
+            const editorContainer = document.getElementById('editorContainer');
+            
+            if (isWatching) {
+                watchBtn.innerHTML = '<i class="fas fa-eye"></i> Watch';
+                watchBtn.classList.remove('active');
+                previewContainer.classList.remove('hidden');
+                editorContainer.classList.remove('full-width');
+                updatePreview();
+            } else {
+                watchBtn.innerHTML = '<i class="fas fa-eye-slash"></i> Unwatch';
+                watchBtn.classList.add('active');
+                previewContainer.classList.add('hidden');
+                editorContainer.classList.add('full-width');
+            }
+            
+            // Refresh CodeMirror to handle size change
+            setTimeout(() => editor.refresh(), 100);
+            editor.focus();
+        }
+        
+        // Toggle fullscreen
+        function toggleFullscreen() {
+            isFullscreen = !isFullscreen;
+            const container = document.getElementById('mainContainer').parentElement;
+            
+            if (isFullscreen) {
+                container.classList.add('fullscreen');
+                document.addEventListener('keydown', handleEscKey);
+            } else {
+                container.classList.remove('fullscreen');
+                document.removeEventListener('keydown', handleEscKey);
+            }
+            
+            setTimeout(() => editor.refresh(), 100);
+            editor.focus();
+        }
+        
+        function handleEscKey(e) {
+            if (e.key === 'Escape' && isFullscreen) {
+                toggleFullscreen();
+            }
+        }
+        
+        // Clear editor
+        function clearEditor() {
+            if (confirm('Are you sure you want to clear all content?')) {
+                editor.setValue('');
+                editor.focus();
+            }
+        }
+        
+        // Search functionality
+        function toggleSearch() {
+            const searchContainer = document.getElementById('searchContainer');
+            const isVisible = searchContainer.style.display === 'block';
+            
+            if (isVisible) {
+                searchContainer.style.display = 'none';
+            } else {
+                searchContainer.style.display = 'block';
+                document.getElementById('searchInput').focus();
+            }
+        }
+        
+        function searchText() {
+            const query = document.getElementById('searchInput').value;
+            if (!query) return;
+            
+            const cursor = editor.getSearchCursor(query, editor.getCursor());
+            if (cursor.findNext()) {
+                editor.setSelection(cursor.from(), cursor.to());
+                editor.scrollIntoView(cursor.from());
+            } else {
+                // Search from beginning
+                const newCursor = editor.getSearchCursor(query);
+                if (newCursor.findNext()) {
+                    editor.setSelection(newCursor.from(), newCursor.to());
+                    editor.scrollIntoView(newCursor.from());
+                } else {
+                    alert('Text not found');
+                }
+            }
+            
+            editor.focus();
+        }
+        
+        // Download functionality
+        function downloadFile(format) {
+            const content = editor.getValue();
+            let fileContent, fileName, mimeType;
+            
+            switch (format) {
+                case 'md':
+                    fileContent = content;
+                    fileName = 'document.md';
+                    mimeType = 'text/markdown';
+                    break;
+                case 'html':
+                    const htmlContent = marked.parse(content);
+                    fileContent = `<!DOCTYPE html>
+                        <html lang="en">
+                        <head>
+                            <meta charset="UTF-8">
+                            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+                            <title>Markdown Document</title>
+                            <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/github-markdown-css/5.2.0/github-markdown-light.min.css">
+                            <style>
+                                .markdown-body {
+                                    box-sizing: border-box;
+                                    min-width: 200px;
+                                    max-width: 980px;
+                                    margin: 0 auto;
+                                    padding: 45px;
+                                }
+                            </style>
+                        </head>
+                        <body>
+                            <div class="markdown-body">
+                                ${htmlContent}
+                            </div>
+                        </body>
+                        </html>`;
+                    fileName = 'document.html';
+                    mimeType = 'text/html';
+                    break;
+                case 'txt':
+                    fileContent = content.replace(/[#*`_~\[\]()]/g, '').replace(/\n\s*\n/g, '\n\n');
+                    fileName = 'document.txt';
+                    mimeType = 'text/plain';
+                    break;
+            }
+            
+            const blob = new Blob([fileContent], { type: mimeType });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = fileName;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        }
+        
+        // Modal functions
+        function showLinkModal() {
+            document.getElementById('linkModal').style.display = 'flex';
+            document.getElementById('linkText').focus();
+        }
+        
+        function closeLinkModal() {
+            document.getElementById('linkModal').style.display = 'none';
+            document.getElementById('linkText').value = '';
+            document.getElementById('linkUrl').value = '';
+            editor.focus();
+        }
+        
+        function insertLink() {
+            const text = document.getElementById('linkText').value || 'Link';
+            const url = document.getElementById('linkUrl').value || 'https://';
+            const link = `[${text}](${url})`;
+            editor.replaceSelection(link);
+            closeLinkModal();
+        }
+        
+        function showRefLinkModal() {
+            document.getElementById('refLinkModal').style.display = 'flex';
+            document.getElementById('refLinkText').focus();
+        }
+        
+        function closeRefLinkModal() {
+            document.getElementById('refLinkModal').style.display = 'none';
+            document.getElementById('refLinkText').value = '';
+            document.getElementById('refLinkRef').value = '';
+            document.getElementById('refLinkUrl').value = '';
+            editor.focus();
+        }
+        
+        function insertRefLink() {
+            const text = document.getElementById('refLinkText').value || 'Link';
+            const ref = document.getElementById('refLinkRef').value || 'ref';
+            const url = document.getElementById('refLinkUrl').value || 'https://';
+            
+            const link = `[${text}][${ref}]`;
+            const reference = `\n\n[${ref}]: ${url}`;
+            
+            editor.replaceSelection(link);
+            
+            // Add reference at the end of document
+            const lastLine = editor.lastLine();
+            editor.setCursor(lastLine, editor.getLine(lastLine).length);
+            editor.replaceSelection(reference);
+            
+            closeRefLinkModal();
+        }
+        
+        function showImageModal() {
+            document.getElementById('imageModal').style.display = 'flex';
+            document.getElementById('imageAlt').focus();
+        }
+        
+        function closeImageModal() {
+            document.getElementById('imageModal').style.display = 'none';
+            document.getElementById('imageAlt').value = '';
+            document.getElementById('imageUrl').value = '';
+            editor.focus();
+        }
+        
+        function insertImage() {
+            const alt = document.getElementById('imageAlt').value || 'Image';
+            const url = document.getElementById('imageUrl').value || 'https://';
+            const image = `![${alt}](${url})`;
+            editor.replaceSelection(image);
+            closeImageModal();
+        }
+        
+        function showTableModal() {
+            document.getElementById('tableModal').style.display = 'flex';
+            document.getElementById('tableRows').focus();
+        }
+        
+        function closeTableModal() {
+            document.getElementById('tableModal').style.display = 'none';
+            editor.focus();
+        }
+        
+        function insertTable() {
+            const rows = parseInt(document.getElementById('tableRows').value) || 3;
+            const cols = parseInt(document.getElementById('tableCols').value) || 3;
+            
+            let table = '\n';
+            
+            // Header row
+            table += '| ' + Array(cols).fill('Header').join(' | ') + ' |\n';
+            
+            // Separator row
+            table += '| ' + Array(cols).fill('---').join(' | ') + ' |\n';
+            
+            // Data rows
+            for (let i = 0; i < rows - 1; i++) {
+                table += '| ' + Array(cols).fill('Data').join(' | ') + ' |\n';
+            }
+            
+            table += '\n';
+            
+            editor.replaceSelection(table);
+            closeTableModal();
+        }
+        
+        function showEmojiModal() {
+            document.getElementById('emojiModal').style.display = 'flex';
+        }
+        
+        function closeEmojiModal() {
+            document.getElementById('emojiModal').style.display = 'none';
+            editor.focus();
+        }
+        
+        function insertEmoji(emoji) {
+            editor.replaceSelection(emoji);
+            closeEmojiModal();
+        }
+        
+        function showHtmlEntitiesModal() {
+            document.getElementById('htmlEntitiesModal').style.display = 'flex';
+        }
+        
+        function closeHtmlEntitiesModal() {
+            document.getElementById('htmlEntitiesModal').style.display = 'none';
+            editor.focus();
+        }
+        
+        function insertHtmlEntity(entity) {
+            editor.replaceSelection(entity);
+            closeHtmlEntitiesModal();
+        }
+        
+        // Close modals when clicking outside
+        window.addEventListener('click', function(e) {
+            const modals = document.querySelectorAll('.modal');
+            modals.forEach(modal => {
+                if (e.target === modal) {
+                    modal.style.display = 'none';
+                    editor.focus();
+                }
+            });
+        });
+        
+        // Handle Enter key in modal inputs
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Enter') {
+                if (document.getElementById('linkModal').style.display === 'flex') {
+                    insertLink();
+                } else if (document.getElementById('refLinkModal').style.display === 'flex') {
+                    insertRefLink();
+                } else if (document.getElementById('imageModal').style.display === 'flex') {
+                    insertImage();
+                } else if (document.getElementById('tableModal').style.display === 'flex') {
+                    insertTable();
+                } else if (document.getElementById('searchContainer').style.display === 'block') {
+                    searchText();
+                }
+            }
+        });
+        
+        // Configure marked options
+        marked.setOptions({
+            highlight: function(code, lang) {
+                return code;
+            },
+            breaks: true,
+            gfm: true
+        });
+    </script>
+</body>
+</html>

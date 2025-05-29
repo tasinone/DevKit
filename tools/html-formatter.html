@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="auto">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>HTML Formatter - DevKit</title>
+  <link rel="stylesheet" href="../assets/pico.min.css" />
+  <link rel="stylesheet" href="../assets/custom.css" />
+  <style>
+    .inline-group {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+      align-items: center;
+    }
+  </style>
+</head>
+<body>
+  <div id="header-placeholder"></div>
+
+  <main class="container">
+    <header class="tool-header">
+      <h1>HTML Formatter</h1>
+      <p>Format and beautify your HTML code with clean indentation and structure</p>
+    </header>
+
+    <textarea id="inputHtml" rows="10" placeholder="Paste your HTML here"></textarea>
+
+    <div class="inline-group">
+      <button onclick="prettifyHtml()">Prettify</button>
+      <button onclick="minifyHtml()">Minify</button>
+      <button onclick="copyResult()">Copy</button>
+
+      <div style="display: flex; align-items: center; gap: 0.5rem; margin-top: 20px;">
+        <select id="indentOption">
+          <option value="tab">Tab</option>
+          <option value="1">1</option>
+          <option value="2" selected>2</option>
+          <option value="3">3</option>
+          <option value="4">4</option>
+          <option value="5">5</option>
+          <option value="6">6</option>
+          <option value="7">7</option>
+          <option value="8">8</option>
+          <option value="9">9</option>
+          <option value="10">10</option>
+        </select>
+      </div>
+    </div>
+  </main>
+
+  <div id="notification" role="alert" class="contrast">
+    <span id="notification-text">Copied to clipboard!</span>
+  </div>
+
+  <div id="footer-placeholder"></div>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/js-beautify/1.14.9/beautify-html.min.js"></script>
+  <script>
+    function prettifyHtml() {
+      const input = document.getElementById('inputHtml');
+      const indentValue = document.getElementById('indentOption').value;
+      const indent_size = indentValue === 'tab' ? 1 : parseInt(indentValue);
+      const indent_with_tabs = indentValue === 'tab';
+
+      const prettifiedHtml = html_beautify(input.value, {
+        indent_size,
+        indent_with_tabs,
+        wrap_line_length: 80,
+        preserve_newlines: true,
+        max_preserve_newlines: 2
+      });
+
+      input.value = prettifiedHtml;
+    }
+
+    function minifyHtml() {
+      const input = document.getElementById('inputHtml');
+      const minifiedHtml = input.value
+        .replace(/\s+/g, ' ')
+        .replace(/>\s+</g, '><')
+        .trim();
+      input.value = minifiedHtml;
+    }
+
+    function copyResult() {
+      const input = document.getElementById('inputHtml');
+      input.select();
+      document.execCommand('copy');
+      showNotification('Copied to clipboard!');
+    }
+  </script>
+  <script src="../assets/script.js"></script>
+</body>
+</html>

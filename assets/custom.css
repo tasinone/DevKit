@@ -1,0 +1,304 @@
+/* Custom styles for the website */
+:root {
+    --card-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    --card-hover-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
+    --border-radius: 8px;
+}
+
+[data-theme="dark"] {
+    --card-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+    --card-hover-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
+}
+
+/* Header styles */
+.header {
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+    background: var(--pico-background-color);
+    border-bottom: 1px solid var(--card-border-color);
+    backdrop-filter: blur(10px);
+}
+
+.header svg {
+  fill: currentColor;
+}
+
+.nav-container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem 0;
+}
+
+.logo {
+    display: flex;
+    align-items: center;
+    text-decoration: none;
+    color: var(--primary);
+    font-weight: 600;
+    font-size: 1.5rem;
+}
+
+.logo img {
+    height: 40px;
+    width: auto;
+    margin-right: 0.5rem;
+}
+
+.desktop-nav {
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+}
+
+.desktop-nav a {
+    text-decoration: none;
+    color: var(--color);
+    font-weight: 500;
+    transition: color 0.2s ease;
+}
+
+.desktop-nav a:hover {
+    color: var(--primary);
+}
+
+.mobile-nav {
+    display: none;
+    align-items: center;
+    gap: 0.2rem;
+}
+
+.theme-toggle,
+.menu-toggle {
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 0.5rem;
+    border-radius: var(--border-radius);
+    transition: background-color 0.2s ease;
+}
+
+.theme-toggle:hover,
+.menu-toggle:hover {
+    background-color: var(--dropdown-hover-background-color);
+}
+
+.icon {
+    width: 1.25rem;
+    height: 1.25rem;
+    fill:red;
+}
+
+/* Mobile menu */
+.mobile-menu {
+    display: none;
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    background: var(--pico-background-color);
+    border-bottom: 1px solid var(--card-border-color);
+    padding: 1rem;
+    box-shadow: var(--card-shadow);
+}
+
+.mobile-menu.active {
+    display: block;
+}
+
+.mobile-menu a {
+    display: block;
+    padding: 0.75rem 0;
+    text-decoration: none;
+    color: var(--color);
+    border-bottom: 1px solid var(--card-border-color);
+}
+
+.mobile-menu a:last-child {
+    border-bottom: none;
+}
+
+.mobile-menu a:hover {
+    color: var(--primary);
+}
+
+/* Hero section */
+.hero {
+    text-align: center;
+    margin: 3rem 0;
+}
+
+.hero h1 {
+    font-size: 2.5rem;
+    margin-bottom: 1rem;
+    color: var(--primary);
+}
+
+.hero p {
+    font-size: 1.2rem;
+    color: var(--muted-color);
+    margin-bottom: 0;
+}
+
+/* Tools grid */
+.tools-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit,
+minmax(200px,
+1fr));
+    gap: 1.5rem;
+    margin: 2rem 0;
+}
+
+.tool-card {
+    background: var(--card-background-color);
+    border: 1px solid var(--card-border-color);
+    border-radius: var(--border-radius);
+    padding: 1.5rem;
+    text-align: center;
+    text-decoration: none;
+    color: var(--color);
+    transition: all 0.3s ease;
+    box-shadow: var(--card-shadow);
+    min-height: 120px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+}
+
+.tool-card:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--card-hover-shadow);
+    color: var(--primary);
+    text-decoration: none;
+}
+
+.tool-card h3 {
+    margin: 0;
+    font-size: 1.1rem;
+    font-weight: 600;
+}
+
+.tool-card.external {
+    border-left: 4px solid var(--primary);
+}
+
+.tool-card.external::after {
+    content: "↗";
+    position: absolute;
+    top: 0.5rem;
+    right: 0.75rem;
+    font-size: 1.2rem;
+    color: var(--primary);
+}
+
+/* Footer */
+.footer {
+    margin-top: 2rem;
+    padding: 2rem 0;
+    border-top: 1px solid var(--card-border-color);
+    text-align: center;
+    color: var(--muted-color);
+}
+
+.footer a {
+    color: var(--primary);
+/*    text-decoration: none;*/
+}
+
+.footer a:hover {
+    text-decoration: underline;
+}
+
+/* Responsive design */
+
+@media (max-width: 768px) {
+    .desktop-nav {
+    display: none;
+}
+
+.mobile-nav {
+    display: flex;
+}
+
+.tools-grid {
+    grid-template-columns: repeat(auto-fit,
+minmax(150px,
+1fr));
+    gap: 0.2rem;
+}
+
+.tool-card {
+    padding: 1rem;
+    min-height: 100px;
+}
+
+.tool-card h3 {
+    font-size: 1rem;
+}
+
+.hero h1 {
+    font-size: 2rem;
+}
+
+.hero p {
+    font-size: 1.1rem;
+}
+
+
+}
+
+@media (max-width: 480px) {
+    .tools-grid {
+    grid-template-columns: repeat(auto-fit,
+minmax(120px,
+1fr));
+}
+
+
+}
+
+/* Hide tools directory access */
+.no-access {
+    display: none;
+}
+
+/* Fixed SVG color in header */ 
+.desktop-nav button,
+.mobile-nav button,
+.desktop-nav a,
+.mobile-nav a {
+  color: inherit;
+}
+
+button:focus,
+button:focus-visible {
+  outline: none !important;
+  box-shadow: none !important;
+}
+
+/* Common CSS for all tools page */
+.tool-container {
+    max-width: 1200px;
+    margin: 2rem auto;
+}
+
+.tool-header {
+    text-align: center;
+    margin-bottom: 2rem;
+}
+
+#notification {
+  display: none;
+  position: fixed;
+  bottom: 1rem;
+  right: 1rem;
+  z-index: 1000;
+  color: #ffffff;
+  background: var(--pico-secondary-background);;
+  padding: 1rem;
+  border-radius: 5px;
+}
+

@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="auto">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Contact - DevKit</title>
+  <link rel="stylesheet" href="assets/pico.min.css" />
+  <link rel="stylesheet" href="assets/custom.css" />
+</head>
+<body>
+  <div id="header-placeholder"></div>
+
+  <main class="container">
+    <header class="tool-header">
+      <h1>Contact</h1>
+      <p>Have a question, suggestion, or want to say hello? I’d love to hear from you!</p>
+    </header>
+
+    <form action="mailto:you@example.com" method="POST" enctype="text/plain">
+      <div class="grid">
+        <div>
+          <label for="name">Your Name</label>
+          <input type="text" id="name" name="Name" placeholder="John Doe" required>
+        </div>
+        <div>
+          <label for="email">Your Email</label>
+          <input type="email" id="email" name="Email" placeholder="john@example.com" required>
+        </div>
+      </div>
+
+      <label for="message">Message</label>
+      <textarea id="message" name="Message" rows="6" placeholder="Write your message here..." required></textarea>
+
+      <button type="submit" class="contrast">Send Message</button>
+    </form>
+
+    <p style="margin-top: 1.5rem; font-size: 0.95rem;">
+      You can also reach out via social media or email directly: <br>
+      📧 <a href="mailto:contact@devkit.zone.id">contact@devkit.zone.id</a><br>
+      🔗 <a href="https://mastodon.social/@tasinone" target="_blank">Mastodon</a>
+    </p>
+  </main>
+
+  <div id="footer-placeholder"></div>
+  <script src="assets/script.js"></script>
+</body>
+</html>
